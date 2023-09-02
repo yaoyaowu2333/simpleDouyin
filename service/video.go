@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"simpleDouyin/dao"
 	"simpleDouyin/entity"
 	"simpleDouyin/pack"
@@ -46,61 +47,80 @@ func (s *VideoService) FindVideoById(id int64) (*entity.Video, error) {
 	return video, nil
 }
 
+// Feed
+// 通过传入时间戳，用户token，返回对应的视频数组，以及视频数组中最早的发布时间
+// 获取视频数组大小是可以控制的，在utils中的DefaultLimit变量
 func (s *VideoService) Feed(latestTime int64, token string, limit int) (*int64, []*entity.Video, error) {
-	var t time.Time
+	var lastTime time.Time
 	if latestTime == 0 {
-		t = time.Now()
+		lastTime = time.Now()
 	} else {
-		t = time.UnixMilli(latestTime)
+		lastTime = time.UnixMilli(latestTime)
 	}
-
-	videoModels, err := dao.NewVideoDaoInstance().QueryVideoBeforeTime(t, limit)
+	log.Printf("获取到时间戳%v", lastTime)
+	videoModels, err := dao.NewVideoDaoInstance().QueryVideoBeforeTime(lastTime, limit)
 	if err != nil {
+		log.Printf("方法dao.QueryVideoBeforeTime(lastTime,limit) 失败：%v", err)
 		return nil, nil, err
 	}
-
+	log.Printf("方法dao.QueryVideoBeforeTime(lastTime,limit) 成功：%v", videoModels)
+	// 获取返回视频的作者id
 	authorIds := pack.AuthorIds(videoModels)
-
+	// 依据id获取用户信息
 	userModelMap, err := dao.NewUserDaoInstance().MQueryUserById(authorIds)
 	if err != nil {
+		log.Printf("方法dao.MQueryUserById(authorIds) 失败：%v", err)
 		return nil, nil, err
 	}
-
+	log.Printf("方法dao.MQueryUserById(authorIds) 成功：%v", userModelMap)
+	// 将userModelMap数据通过MUser进行处理，在拷贝的过程中对数据进行组装
 	userMap := pack.MUser(userModelMap)
 
 	// 获取当前用户
 	curUserId, err := dao.NewLoginStatusDaoInstance().QueryUserIdByToken(token)
 	if err != nil {
+		log.Printf("方法dao.QueryUserIdByToken(token) 失败：%v", err)
 		return nil, nil, err
 	}
-
+	log.Printf("方法dao.QueryUserIdByToken(token) 成功：%v", curUserId)
 	if curUserId != -1 {
 		for uid := range userMap {
+			//用户是否关注视频作者,这里需要将视频的发布者和当前登录的用户传入，才能正确获得isFollow，
 			userMap[uid].IsFollow = dao.NewRelationDaoInstance().IsFollow(curUserId, uid)
 		}
 	}
-
+	// 将videoModels数据通过Videos进行处理，在拷贝的过程中对数据进行组装
 	videos := pack.Videos(videoModels)
 
 	for i, video := range videos {
+		//插入Author
 		video.Author = *userMap[authorIds[i]]
 
+		//获取该视频的评论数字
 		commentCount, _, err := dao.NewCommentDaoInstance().QueryCommentByVideoId(video.Id)
 		if err != nil {
+			log.Printf("方法dao.QueryCommentByVideoId(video.Id) 失败：%v", err)
 			return nil, nil, err
 		}
+		log.Printf("方法dao.QueryCommentByVideoId(video.Id) 成功：%v", commentCount)
 		video.CommentCount = commentCount
 
+		//获取该视频的点赞数
 		favoriteCount, err := dao.NewFavoriteDaoInstance().QueryFavoriteByVideoId(video.Id)
 		if err != nil {
+			log.Printf("方法dao.QueryFavoriteByVideoId(video.Id) 失败：%v", err)
 			return nil, nil, err
 		}
+		log.Printf("方法dao.QueryFavoriteByVideoId(video.Id) 成功：%v", favoriteCount)
 		video.FavoriteCount = favoriteCount
+
+		//获取当前用户是否点赞了该视频
 		video.IsFavorite = dao.NewFavoriteDaoInstance().QueryFavoriteByUserToken(video.Id, token)
 	}
 
 	var nextTime int64
 	if len(videoModels) > 0 {
+		//获得视频中最早的时间返回
 		nextTime = videoModels[len(videoModels)-1].CreateAt.UnixMilli()
 	} else {
 		nextTime = time.Now().UnixMilli()

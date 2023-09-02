@@ -30,6 +30,8 @@ func NewFavoriteDaoInstance() *FavoriteDao {
 	return favoriteDao
 }
 
+// QueryFavoriteByVideoId
+// 获取点赞数
 func (d *FavoriteDao) QueryFavoriteByVideoId(videoID int64) (int64, error) {
 	var favoriteCount int64
 	result := db.Table("videos").Select("favorite_count").Where("id = ?", videoID).Find(&favoriteCount)
@@ -49,6 +51,8 @@ func (d *FavoriteDao) QueryVideoIdByToken(token string) ([]int64, error) {
 	return ids, nil
 }
 
+// QueryFavoriteByUserToken
+// 登录用户是否点赞该视频
 func (d *FavoriteDao) QueryFavoriteByUserToken(videoId int64, token string) bool {
 	err := db.Where("video_id = ? AND user_token = ?", videoId, token).First(&Favorite{}).Error
 	if err != nil {

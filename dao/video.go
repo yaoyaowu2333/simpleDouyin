@@ -48,6 +48,7 @@ func (*VideoDao) QueryVideoById(id int64) (*Video, error) {
 }
 
 // QueryVideoBeforeTime will return empty array if no user is found
+// 依据一个时间，来获取这个时间之前的一些视频
 func (*VideoDao) QueryVideoBeforeTime(time time.Time, limit int) ([]*Video, error) {
 	var videos []*Video
 	err := db.Where("create_at < ?", time).Order("create_at DESC").Limit(limit).Find(&videos).Error

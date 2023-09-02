@@ -34,6 +34,8 @@ func NewUserDaoInstance() *UserDao {
 	return userDao
 }
 
+// CreateUser
+// 向用户表插入用户数据
 func (*UserDao) CreateUser(user *User) error {
 	return db.Create(&user).Error
 }
@@ -53,6 +55,7 @@ func (*UserDao) QueryUserById(id int64) (*User, error) {
 }
 
 // MQueryUserById will return empty array if no user is found
+// 依据id获取用户信息
 func (*UserDao) MQueryUserById(ids []int64) (map[int64]User, error) {
 	var users []*User
 	err := db.Where("id in (?)", ids).Find(&users).Error
@@ -80,6 +83,8 @@ func (d *UserDao) MQueryUserByName(names []string) (map[string]User, error) {
 	return userMap, nil
 }
 
+// QueryUserByName
+// 通过用户名从用户表中查询
 func (*UserDao) QueryUserByName(name string) (*User, error) {
 	var user *User
 	err := db.Where("name = ?", name).First(&user).Error

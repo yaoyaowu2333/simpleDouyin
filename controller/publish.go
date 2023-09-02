@@ -14,7 +14,7 @@ import (
 
 // 是否自动生成封面，需要配置环境，默认为否
 // var useGeneratedCover = utils.UseGeneratedCover
-var useGeneratedCover = false
+var useGeneratedCover = true
 
 func Publish(c *gin.Context) {
 	token := c.PostForm("token")
