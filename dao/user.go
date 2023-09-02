@@ -40,6 +40,8 @@ func (*UserDao) CreateUser(user *User) error {
 	return db.Create(&user).Error
 }
 
+// QueryUserById
+// 根据用户id在用户表中查询用户
 func (*UserDao) QueryUserById(id int64) (*User, error) {
 	user := new(User) //实例化对象
 	result := db.Where("id = ?", id).First(&user)

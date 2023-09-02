@@ -18,7 +18,7 @@ type FeedResponse struct {
 	NextTime  int64          `json:"next_time"`
 }
 
-// Feed /feed/
+// Feed GET /feed/
 func Feed(c *gin.Context) {
 	c.JSON(http.StatusOK, FeedFunc(c.Query("latest_time"), c.Query("token")))
 }

@@ -27,13 +27,16 @@ func NewUserServiceInstance() *UserService {
 	return userService
 }
 
-func (s *UserService) UserInfo(id int64) (*entity.User, error) {
+// UserInfo
+// 查询用户信息,重组用户信息并返回
+func (s *UserService) UserInfo(uid int64) (*entity.User, error) {
 	// 查询用户信息
-	userModel, err := dao.NewUserDaoInstance().QueryUserById(id)
+	userModel, err := dao.NewUserDaoInstance().QueryUserById(uid)
 	if err != nil {
+		log.Printf("方法userDao.QueryUserById(uid)失败,%v\n", err)
 		return nil, err
 	}
-
+	log.Printf("方法userDao.QueryUserById(uid)成功,%v\n", userModel)
 	// 包装用户信息
 	user := pack.User(userModel)
 	user.IsFollow = true
@@ -82,7 +85,7 @@ func (s *UserService) AddUser(username, password string) error {
 		log.Printf("方法LoginStatusDao.CreateLoginStatus(loginStatus)失败,%v\n", err)
 		return err
 	}
-	log.Printf("方法LoginStatusDao.CreateLoginStatus(loginStatus)成功")
+	log.Printf("方法LoginStatusDao.CreateLoginStatus(loginStatus)成功\n")
 	return nil
 }
 
@@ -93,10 +96,10 @@ func (s *UserService) Register(username, password string) error {
 	// 用户输入验证
 	err := InfoVerify(username, password)
 	if err != nil {
-		log.Printf("效验失败：%v", err)
+		log.Printf("效验失败：%v\n", err)
 		return err
 	}
-	log.Printf("方法InfoVerify(username, password)效验成功")
+	log.Printf("方法InfoVerify(username, password)效验成功\n")
 	token := "<" + username + "><" + password + ">"
 	// 先查缓存 ..
 	if _, exist := usersLoginInfo[token]; !exist {
@@ -105,15 +108,15 @@ func (s *UserService) Register(username, password string) error {
 			//将用户添加到user表
 			err = s.AddUser(username, password)
 			if err != nil {
-				log.Printf("用户添加失败")
-				return utils.Error{Msg: "User register failed, Please retry for a minute!"}
+				log.Printf("用户添加失败\n")
+				return utils.Error{Msg: "User register failed, Please retry for a minute!\n"}
 			}
-			log.Printf("用户注册成功")
+			log.Printf("用户注册成功\n")
 			return err
 		}
-		log.Printf("用户已经存在,不需要注册")
+		log.Printf("用户已经存在,不需要注册\n")
 	}
-	log.Printf("用户已经登录,不需要注册")
+	log.Printf("用户已经登录,不需要注册\n")
 	return utils.Error{Msg: "User already exist, don't register again!"}
 }
 

@@ -57,32 +57,32 @@ func (s *VideoService) Feed(latestTime int64, token string, limit int) (*int64, 
 	} else {
 		lastTime = time.UnixMilli(latestTime)
 	}
-	log.Printf("获取到时间戳%v", lastTime)
+	log.Printf("获取到时间戳%v\n", lastTime)
 	videoModels, err := dao.NewVideoDaoInstance().QueryVideoBeforeTime(lastTime, limit)
 	if err != nil {
-		log.Printf("方法dao.QueryVideoBeforeTime(lastTime,limit) 失败：%v", err)
+		log.Printf("方法dao.QueryVideoBeforeTime(lastTime,limit) 失败：%v\n", err)
 		return nil, nil, err
 	}
-	log.Printf("方法dao.QueryVideoBeforeTime(lastTime,limit) 成功：%v", videoModels)
+	log.Printf("方法dao.QueryVideoBeforeTime(lastTime,limit) 成功：%v\n", videoModels)
 	// 获取返回视频的作者id
 	authorIds := pack.AuthorIds(videoModels)
 	// 依据id获取用户信息
 	userModelMap, err := dao.NewUserDaoInstance().MQueryUserById(authorIds)
 	if err != nil {
-		log.Printf("方法dao.MQueryUserById(authorIds) 失败：%v", err)
+		log.Printf("方法dao.MQueryUserById(authorIds) 失败：%v\n", err)
 		return nil, nil, err
 	}
-	log.Printf("方法dao.MQueryUserById(authorIds) 成功：%v", userModelMap)
+	log.Printf("方法dao.MQueryUserById(authorIds) 成功：%v\n", userModelMap)
 	// 将userModelMap数据通过MUser进行处理，在拷贝的过程中对数据进行组装
 	userMap := pack.MUser(userModelMap)
 
 	// 获取当前用户
 	curUserId, err := dao.NewLoginStatusDaoInstance().QueryUserIdByToken(token)
 	if err != nil {
-		log.Printf("方法dao.QueryUserIdByToken(token) 失败：%v", err)
+		log.Printf("方法dao.QueryUserIdByToken(token) 失败：%v\n", err)
 		return nil, nil, err
 	}
-	log.Printf("方法dao.QueryUserIdByToken(token) 成功：%v", curUserId)
+	log.Printf("方法dao.QueryUserIdByToken(token) 成功：%v\n", curUserId)
 	if curUserId != -1 {
 		for uid := range userMap {
 			//用户是否关注视频作者,这里需要将视频的发布者和当前登录的用户传入，才能正确获得isFollow，
@@ -99,19 +99,19 @@ func (s *VideoService) Feed(latestTime int64, token string, limit int) (*int64, 
 		//获取该视频的评论数字
 		commentCount, _, err := dao.NewCommentDaoInstance().QueryCommentByVideoId(video.Id)
 		if err != nil {
-			log.Printf("方法dao.QueryCommentByVideoId(video.Id) 失败：%v", err)
+			log.Printf("方法dao.QueryCommentByVideoId(video.Id) 失败：%v\n", err)
 			return nil, nil, err
 		}
-		log.Printf("方法dao.QueryCommentByVideoId(video.Id) 成功：%v", commentCount)
+		log.Printf("方法dao.QueryCommentByVideoId(video.Id) 成功：%v\n", commentCount)
 		video.CommentCount = commentCount
 
 		//获取该视频的点赞数
 		favoriteCount, err := dao.NewFavoriteDaoInstance().QueryFavoriteByVideoId(video.Id)
 		if err != nil {
-			log.Printf("方法dao.QueryFavoriteByVideoId(video.Id) 失败：%v", err)
+			log.Printf("方法dao.QueryFavoriteByVideoId(video.Id) 失败：%v\n", err)
 			return nil, nil, err
 		}
-		log.Printf("方法dao.QueryFavoriteByVideoId(video.Id) 成功：%v", favoriteCount)
+		log.Printf("方法dao.QueryFavoriteByVideoId(video.Id) 成功：%v\n", favoriteCount)
 		video.FavoriteCount = favoriteCount
 
 		//获取当前用户是否点赞了该视频

@@ -30,7 +30,7 @@ func Register(c *gin.Context) {
 func LoginFunc(username, password string) UserLoginResponse {
 	userId, token, err := userService.Login(username, password)
 	if err != nil {
-		log.Printf("方法userService.Login(username, password) 失败：%v", err)
+		log.Printf("方法userService.Login(username, password) 失败：%v\n", err)
 		return ErrorUserLoginResponse(err)
 	}
 	log.Printf("方法userService.Login(username, password)成功\n")
@@ -46,7 +46,7 @@ func LoginFunc(username, password string) UserLoginResponse {
 
 func RegisterFunc(username, password string) UserLoginResponse {
 	if err := userService.Register(username, password); err != nil {
-		log.Printf("方法userService.Register(username, password) 失败：%v", err)
+		log.Printf("方法userService.Register(username, password) 失败：%v\n", err)
 		return ErrorUserLoginResponse(err)
 	}
 	log.Printf("方法userService.Register(username, password)成功\n")

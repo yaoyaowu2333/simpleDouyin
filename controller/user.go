@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"simpleDouyin/entity"
 	"simpleDouyin/service"
@@ -15,7 +16,7 @@ type UserResponse struct {
 	User entity.User `json:"user"`
 }
 
-// UserInfo /douyin/user
+// UserInfo GET douyin/user/ 用户信息
 func UserInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, UserInfoFunc(
 		c.Query("user_id"),
@@ -28,11 +29,13 @@ func UserInfoFunc(userId, token string) UserResponse {
 	if err != nil {
 		return ErrorUserResponse(err)
 	}
-
+	log.Printf("查询用户的id: %v\n", uid)
 	user, err := service.NewUserServiceInstance().UserInfo(uid)
 	if err != nil {
+		log.Printf("方法userService.UserInfo(uid)失败: %v\n", err)
 		return ErrorUserResponse(err)
 	}
+	log.Printf("方法userService.UserInfo(uid)成功: %v\n", user)
 	if user == nil {
 		return FailUserResponse("user not exist: uid " + strconv.FormatInt(uid, 10))
 	}
