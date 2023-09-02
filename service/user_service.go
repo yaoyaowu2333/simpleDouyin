@@ -120,27 +120,35 @@ func (s *UserService) Register(username, password string) error {
 	return utils.Error{Msg: "User already exist, don't register again!"}
 }
 
+// Login
+// 实现用户登录功能
 func (s *UserService) Login(username, password string) (*int64, *string, error) {
 	// 用户校验
+	//对输入的密码加密
 	password = utils.Md5(password)
 	token := "<" + username + "><" + password + ">"
-
+	//通过对用户名在用户表中查找用户
 	user, _ := s.FindUserByName(username)
 	if user == nil {
+		log.Printf("用户不存在\n")
 		return nil, nil, utils.Error{Msg: "User doesn't exist, Please Register! "}
 	}
+	log.Printf("用户存在,user= %v\n", user)
+	//将user加入缓冲中
 	usersLoginInfo[token] = *user
 	// 密码校验
 	result, _ := dao.NewUserDaoInstance().QueryUserByToken(token)
 	if result == nil {
+		log.Printf("用户名与密码校验失败\n")
 		return nil, nil, utils.Error{Msg: "Password Wrong!"}
 	}
+	log.Printf("校验成功\n")
 	// 创建token
 	loginStatus := &dao.LoginStatus{
 		UserId: user.Id,
 		Token:  token,
-		//Token:  utils.GenerateUUID(),
 	}
+	//将登录状态记录到登录日志
 	err := dao.NewLoginStatusDaoInstance().CreateLoginStatus(loginStatus)
 	if err != nil {
 		return nil, nil, err

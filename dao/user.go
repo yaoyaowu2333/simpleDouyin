@@ -99,6 +99,9 @@ func (*UserDao) QueryUserByName(name string) (*User, error) {
 	return user, nil
 }
 
+// QueryUserByToken
+// 从token中获取用户名与密码
+// 效验用户名与密码
 func (*UserDao) QueryUserByToken(token string) (*User, error) {
 	var users *User //实例化对象
 	re, err := regexp.Compile("[A-Za-z0-9_@.\\-\u4e00-\u9fa5]+")
