@@ -60,6 +60,8 @@ func (*VideoDao) QueryVideoBeforeTime(time time.Time, limit int) ([]*Video, erro
 	return videos, nil
 }
 
+// CreateVideo
+// 将视频信息存入视频表中
 func (*VideoDao) CreateVideo(video *Video) error {
 	return db.Create(&video).Error
 }

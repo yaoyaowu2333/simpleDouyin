@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+// ReadFrameAsJpeg
+// 提取第一帧的图片作为封面
 func ReadFrameAsJpeg(videoFilePath string, frameNum int, imgFilePath string) int {
 	buf := bytes.NewBuffer(nil)
 	err := ffmpeg.Input(videoFilePath).

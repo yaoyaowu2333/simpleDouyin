@@ -158,6 +158,8 @@ func (s *VideoService) PublishList(authorId int64) ([]*entity.Video, error) {
 	return videos, nil
 }
 
+// Publish
+// 将视频信息存入视频数据库,视频数加一
 func (s VideoService) Publish(token, playUrl, coverUrl, title string) error {
 	if playUrl == "" || coverUrl == "" || title == "" {
 		return utils.Error{Msg: "参数不能为空"}
@@ -181,6 +183,7 @@ func (s VideoService) Publish(token, playUrl, coverUrl, title string) error {
 		FavoriteCount: 0,
 		CommentCount:  0,
 	}
+	//将视频信息存入视频数据库
 	err = dao.NewVideoDaoInstance().CreateVideo(&videoModel)
 	if err != nil {
 		return err
