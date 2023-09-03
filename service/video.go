@@ -28,18 +28,22 @@ func NewVideoServiceInstance() *VideoService {
 
 // 作用：根据视频ID返回视频信息
 func (s *VideoService) FindVideoById(id int64) (*entity.Video, error) {
+	// 查询具有特定ID的视频模型
 	videoModel, err := dao.NewVideoDaoInstance().QueryVideoById(id)
 	if err != nil {
+		log.Printf("dao.NewVideoDaoInstance().QueryVideoById(id)方法执行有误，查询指定id的视频失败！")
 		return nil, err
 	}
 
 	if videoModel == nil {
+		log.Printf("查询视频为空")
 		return nil, nil
 	}
 
 	// 查询视频发布的作者信息
 	userModel, err := dao.NewUserDaoInstance().QueryUserById(videoModel.AuthorId)
 	if err != nil {
+		log.Printf("dao.NewUserDaoInstance().QueryUserById(videoModel.AuthorId)方法执行有误，查询指定id视频的作者信息失败！")
 		return nil, err
 	}
 

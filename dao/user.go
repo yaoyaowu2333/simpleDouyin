@@ -44,9 +44,11 @@ func (*UserDao) CreateUser(user *User) error {
 // 根据用户id在用户表中查询用户
 func (*UserDao) QueryUserById(id int64) (*User, error) {
 	user := new(User) //实例化对象
+	log.Printf("开始查询数据库中，id为%v的用户信息", id)
 	result := db.Where("id = ?", id).First(&user)
 	err := result.Error
 	if err == gorm.ErrRecordNotFound {
+		log.Printf("查询失败！")
 		return nil, nil
 	}
 	if err != nil {

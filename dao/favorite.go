@@ -42,10 +42,13 @@ func (d *FavoriteDao) QueryFavoriteByVideoId(videoID int64) (int64, error) {
 	return favoriteCount, nil
 }
 
+
+// 根据用户token查询用户点赞的视频的ID列表
 func (d *FavoriteDao) QueryVideoIdByToken(token string) ([]int64, error) {
 	var ids []int64
 	err := db.Select("video_id").Table("favorites").Where("user_token = ?", token).Find(&ids).Error
 	if err != nil {
+		log.Printf("数据库查询指定用户点赞视频的列表失败！！")
 		return nil, err
 	}
 	return ids, nil

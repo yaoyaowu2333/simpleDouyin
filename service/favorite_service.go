@@ -34,17 +34,23 @@ func (s *FavoriteService) FindUserByToken(token string) (*entity.User, error) {
 	return pack.User(user), err
 }
 
+// 输入：token
+// 输出：用户点赞的视频切片和执行报错
 func (s *FavoriteService) FindVideosByToken(token string) ([]*entity.Video, error) {
 	// invalid token
 	if token == "" {
+		log.Printf("用户token为空！失败！")
 		return nil, nil
 	}
+	// 查询与用户点赞的视频ID列表
 	videoIds, err := dao.NewFavoriteDaoInstance().QueryVideoIdByToken(token)
 	if err != nil {
+		log.Printf("dao.NewFavoriteDaoInstance().QueryVideoIdByToken(token)方法有误，查询与用户点赞的视频ID列表失败！")
 		return nil, err
 	}
 	var videos []*entity.Video
-	for _, id := range videoIds {
+	for _, id := range videoIds {  // 将查询到的视频对象 video 添加到 videos 列表中，最终形成了用户收藏的视频列表
+		// 查询视频的详细信息
 		video, _ := NewVideoServiceInstance().FindVideoById(id)
 		//video.IsFavorite = true
 		videos = append(videos, video)
@@ -113,6 +119,7 @@ func (s *FavoriteService) Withdraw(videoId int64, token string) error {
 	return nil
 }
 
+// 服务端获取用户点赞列表操作的响应
 func (s *FavoriteService) FavoriteList(token string) ([]*entity.Video, error) {
 	return s.FindVideosByToken(token)
 }
