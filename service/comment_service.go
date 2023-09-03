@@ -121,12 +121,12 @@ func (s *CommentService) Add(videoId int64, token, text string) (*entity.Comment
 }
 
 // 删除评论的操作
-func (s *CommentService) Withdraw(videoId int64) (*entity.Comment, error) {
+func (s *CommentService) Withdraw(id int64) (*entity.Comment, error) {
 	// 
 	log.Printf("开始删除评论！")
-	oldComment, err := dao.NewCommentDaoInstance().DeleteById(videoId)
+	oldComment, err := dao.NewCommentDaoInstance().DeleteById(id)
 	if err != nil {
-		log.Printf("dao.NewCommentDaoInstance().DeleteById(videoId)方法执行有误，评论删除失败！")
+		log.Printf("dao.NewCommentDaoInstance().DeleteById(id)方法执行有误，评论删除失败！")
 		return nil, err
 	}
 	return pack.Comment(oldComment), nil
