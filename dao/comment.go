@@ -54,9 +54,11 @@ func (d *CommentDao) QueryCommentById(id int64) ([]*Comment, error) {
 // QueryCommentByVideoId 添加返回结果int64
 func (d *CommentDao) QueryCommentByVideoId(videoID int64) (int64, []*Comment, error) {
 	var comments []*Comment
+	log.Printf("数据库查询，根据视频id查询所有评论")
 	result := db.Where("video_id = ?", videoID).Order("id DESC").Find(&comments)
 	err := result.Error
 	if err != nil {
+		log.Printf("数据库查询失败！")
 		return 0, nil, err
 	}
 	return result.RowsAffected, comments, nil

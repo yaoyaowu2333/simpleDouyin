@@ -80,10 +80,13 @@ func (*UserDao) MQueryUserById(ids []int64) (map[int64]User, error) {
 	return userMap, nil
 }
 
+
 func (d *UserDao) MQueryUserByName(names []string) (map[string]User, error) {
 	var users []*User
+	log.Printf("数据库查询，根据用户姓名查询用户信息")
 	err := db.Where("name in (?)", names).Find(&users).Error
 	if err != nil {
+		log.Printf("数据库查询失败！")
 		return nil, err
 	}
 	var userMap = make(map[string]User, len(users))

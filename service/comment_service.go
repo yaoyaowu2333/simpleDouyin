@@ -27,6 +27,7 @@ func NewCommentServiceInstance() *CommentService {
 	return commentService
 }
 
+// 加载视频所有评论
 func (s *CommentService) LoadComments(videoId int64) ([]*entity.Comment, error) {
 	return s.FindCommentByVideoId(videoId)
 }
@@ -43,6 +44,7 @@ func (s *CommentService) FindCommentByName(name string) (*entity.Comment, error)
 	return pack.Comment(commentModel), nil
 }
 
+// 获取视频所有评论
 func (s *CommentService) FindCommentByVideoId(videoID int64) ([]*entity.Comment, error) {
 	// invalid authorId
 	if videoID <= 0 {
