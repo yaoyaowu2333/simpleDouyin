@@ -25,6 +25,7 @@ var videoDao *VideoDao
 var videoOnce sync.Once
 
 // NewVideoDaoInstance Singleton
+// 初始化一个*VideoDao类型的对象
 func NewVideoDaoInstance() *VideoDao {
 	videoOnce.Do(
 		func() {
@@ -66,10 +67,15 @@ func (*VideoDao) CreateVideo(video *Video) error {
 	return db.Create(&video).Error
 }
 
+// 返回数据库中获取的给定作者ID相关的视频列表
+// 输入：*VideoDao类型
+// 输出：视频列表
 func (*VideoDao) QueryVideoByAuthorId(authorId int64) ([]*Video, error) {
 	var videos []*Video
+	// 查询数据库中具有给定作者ID的视频。db 是一个数据库连接对象
 	err := db.Where("author_id = ?", authorId).Find(&videos).Error
 	if err != nil {
+		log.Printf("查询数据库中给定作者ID的视频失败！")
 		log.Fatal("batch find video by author_id err:" + err.Error())
 		return nil, err
 	}

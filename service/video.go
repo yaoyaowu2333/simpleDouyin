@@ -17,6 +17,7 @@ type VideoService struct {
 var videoService *VideoService
 var serviceOnce sync.Once
 
+// 创建一个*VideoService类型的视频服务
 func NewVideoServiceInstance() *VideoService {
 	serviceOnce.Do(
 		func() {
@@ -25,6 +26,7 @@ func NewVideoServiceInstance() *VideoService {
 	return videoService
 }
 
+// 作用：根据视频ID返回视频信息
 func (s *VideoService) FindVideoById(id int64) (*entity.Video, error) {
 	videoModel, err := dao.NewVideoDaoInstance().QueryVideoById(id)
 	if err != nil {
@@ -35,6 +37,7 @@ func (s *VideoService) FindVideoById(id int64) (*entity.Video, error) {
 		return nil, nil
 	}
 
+	// 查询视频发布的作者信息
 	userModel, err := dao.NewUserDaoInstance().QueryUserById(videoModel.AuthorId)
 	if err != nil {
 		return nil, err
@@ -131,25 +134,38 @@ func (s *VideoService) Feed(latestTime int64, token string, limit int) (*int64, 
 	return &nextTime, videos, nil
 }
 
+
+// 返回给定用户uid相关联的视频列表
+// 输入：*VideoService类型
+// 输出：存放有视频的视频列表
 func (s *VideoService) PublishList(authorId int64) ([]*entity.Video, error) {
-	// invalid authorId
+	// invalid authorId         // 如果作者ID无效，返回空视频列表和空错误
 	if authorId <= 0 {
+		log.Printf("作者id无效")
 		return nil, nil
 	}
 
+
+	// 调用一个数据库查询（dao.NewVideoDaoInstance().QueryVideoByAuthorId(authorId)）
+	// 从数据库中获取与给定作者ID相关的视频列表
+	// NewVideoDaoInstance见dao/video.go文件
+	// PublishList见dao/video.go文件中的函数QueryVideoByAuthorId
 	videoModels, err := dao.NewVideoDaoInstance().QueryVideoByAuthorId(authorId)
 	if err != nil {
+		log.Printf("dao.NewVideoDaoInstance().QueryVideoByAuthorId(authorId) 失败")
 		return nil, err
 	}
+	// 提取视频模型中的作者ID，将它们存储在 authorIds 列表中，
 	authorIds := pack.AuthorIds(videoModels)
-
+	// 使用 dao.NewUserDaoInstance().MQueryUserById(authorIds) 查询作者ID列表对应的用户模型映射。
 	userModelMap, err := dao.NewUserDaoInstance().MQueryUserById(authorIds)
 	if err != nil {
+		log.Printf("dao.NewUserDaoInstance().MQueryUserById(authorIds) 失败")
 		return nil, err
 	}
 
-	userMap := pack.MUser(userModelMap)
-	videos := pack.Videos(videoModels)
+	userMap := pack.MUser(userModelMap)			// 将用户模型映射转换为以用户ID为键的用户对象映射，存储在 userMap 中
+	videos := pack.Videos(videoModels)			// 使用 pack.Videos(videoModels) 将视频模型转换为视频对象列表
 
 	for i, video := range videos {
 		video.Author = *userMap[authorIds[i]]

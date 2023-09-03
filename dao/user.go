@@ -56,12 +56,18 @@ func (*UserDao) QueryUserById(id int64) (*User, error) {
 	return user, nil
 }
 
+
+// 作用：根据一组给定的用户ID查询用户信息
+// 输入：用户ID切片，返回的是用户信息哈希表
+// MQueryUserById will return empty array if no user is found
+// 如果找不到用户，MQueryUserById将返回空数组
 // MQueryUserById will return empty array if no user is found
 // 依据id获取用户信息
 func (*UserDao) MQueryUserById(ids []int64) (map[int64]User, error) {
 	var users []*User
 	err := db.Where("id in (?)", ids).Find(&users).Error
 	if err != nil {
+		log.Printf("查找给定用户id的用户信息，数据库查询失败！")
 		return nil, err
 	}
 	var userMap = make(map[int64]User, len(users))
@@ -99,18 +105,25 @@ func (*UserDao) QueryUserByName(name string) (*User, error) {
 	return user, nil
 }
 
+// 根据用户令牌（token）查询用户信息
+// 输入：token
+// 输出：返回值是一个 *User 指针，表示查询到的用户对象，以及一个 error，表示可能的错误
+
 // QueryUserByToken
 // 从token中获取用户名与密码
 // 效验用户名与密码
 func (*UserDao) QueryUserByToken(token string) (*User, error) {
 	var users *User //实例化对象
+	// 创建了一个正则表达式对象 re， 并从re中提取用户名和密码
 	re, err := regexp.Compile("[A-Za-z0-9_@.\\-\u4e00-\u9fa5]+")
 	if err != nil {
 		return nil, err
 	}
 	name := re.FindAllString(token, 2)[0]
 	password := re.FindAllString(token, 2)[1]
+	// 根据用户名和密码在数据库中查询匹配的用户
 	err = db.Debug().Where("name = ? and password = ?", name, password).First(&users).Error
+	// 没查到的情况
 	if err == gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -118,7 +131,7 @@ func (*UserDao) QueryUserByToken(token string) (*User, error) {
 		//fmt.Println("record not found!")
 		return nil, err
 	}
-
+	// 查到了， 返回
 	return users, nil
 }
 
