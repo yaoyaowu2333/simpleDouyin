@@ -9,6 +9,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"log"
 )
 
 type FavoriteService struct {
@@ -67,17 +68,23 @@ func (s *FavoriteService) LastId() (int64, error) {
 	return count, nil
 }
 
+
+// 输入：视频id以及token
+// 输出：点赞操作执行是否成功的报错，如若执行成功，则返回nil
 func (s *FavoriteService) Add(videoId int64, token string) error {
 	// 先查缓存 ..
 	if _, exist := usersLoginInfo[token]; !exist {
 		user, _ := dao.NewUserDaoInstance().QueryUserByToken(token)
 		if user == nil {
+			log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
 			return utils.Error{Msg: "User doesn't exist, Please Register! "}
 		}
 		usersLoginInfo[token] = *pack.User(user)
 	}
 	// 点赞
+	// 获取当前点赞的最后一个ID
 	favoriteIdSequence, _ := favoriteService.LastId()
+	// 上一步递增的点赞ID递增
 	atomic.AddInt64(&favoriteIdSequence, 1)
 	newFavorite := &dao.Favorite{
 		Id:        favoriteIdSequence,
@@ -85,17 +92,22 @@ func (s *FavoriteService) Add(videoId int64, token string) error {
 		VideoId:   videoId,
 		CreateAt:  time.Now(),
 	}
+	// 存新的点赞记录
 	err := dao.NewFavoriteDaoInstance().Save(newFavorite)
 	if err != nil {
+		log.Printf("dao.NewFavoriteDaoInstance().Save(newFavorite)方法失败，保存点赞记录操作失误！")
 		return err
 	}
 	return nil
 }
 
+// 输入：视频id和token
+// 输出：取消点赞的操作的执行报错情况，当执行成功时，返回为nil
 func (s *FavoriteService) Withdraw(videoId int64, token string) error {
 	// 删除评论
 	err := dao.NewFavoriteDaoInstance().Delete(videoId, token)
 	if err != nil {
+		log.Printf("dao.NewFavoriteDaoInstance().Delete(videoId, token)方法失败，取消点赞记录操作失误！")
 		return err
 	}
 	return nil

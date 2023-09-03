@@ -117,6 +117,7 @@ func (*UserDao) QueryUserByToken(token string) (*User, error) {
 	// 创建了一个正则表达式对象 re， 并从re中提取用户名和密码
 	re, err := regexp.Compile("[A-Za-z0-9_@.\\-\u4e00-\u9fa5]+")
 	if err != nil {
+		log.Printf("用户名、密码提取失败！")
 		return nil, err
 	}
 	name := re.FindAllString(token, 2)[0]
@@ -125,6 +126,7 @@ func (*UserDao) QueryUserByToken(token string) (*User, error) {
 	err = db.Debug().Where("name = ? and password = ?", name, password).First(&users).Error
 	// 没查到的情况
 	if err == gorm.ErrRecordNotFound {
+		log.Printf("数据库查询失败！没有查到与提供的用户名及密码匹配的用户")
 		return nil, err
 	}
 	if err != nil {

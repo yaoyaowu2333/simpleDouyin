@@ -11,7 +11,7 @@ import (
 	"log"
 )
 
-// 视频列表相应结构体
+// 视频列表响应结构体
 type VideoListResponse struct {
 	entity.Response
 	VideoList []entity.Video `json:"video_list"`
@@ -20,7 +20,6 @@ type VideoListResponse struct {
 
 // 发布列表接口
 // 接受两个查询参数：token 和 user_id，可能用于认证和标识用户      
-// 这个token是当前账号使用者的标识，user_id是其他用户的标识 ？？？
 // 返回包含 publishListFunc 函数结果的JSON作为响应
 // PublishList /douyin/publish
 func PublishList(c *gin.Context) {

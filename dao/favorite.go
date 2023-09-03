@@ -61,29 +61,38 @@ func (d *FavoriteDao) QueryFavoriteByUserToken(videoId int64, token string) bool
 	return true
 }
 
+
+// 用于保存点赞（收藏）记录到数据库中
 func (d *FavoriteDao) Save(favorite *Favorite) error {
 	result := db.Create(&favorite)
 	err := result.Error
 	if err != nil {
+		log.Printf("数据库创建点赞数据操作失败！")
 		return err
 	}
 
+	// 更新与点赞相关的视频记录
 	err = db.Debug().Model(&Video{}).Where("id = ?", favorite.VideoId).Update("favorite_count", gorm.Expr("favorite_count + ?", 1)).Error
 	if err != nil {
+		log.Printf("数据库更新点赞信息操作失败！")
 		fmt.Println(err)
 		return err
 	}
 	return nil
 }
 
+// 用户删除某条点赞记录
 func (d *FavoriteDao) Delete(videoId int64, token string) error {
 	err := db.Where("user_token = ? AND video_id = ?", token, videoId).Delete(&Favorite{}).Error
 	if err != nil {
+		log.Printf("数据库查询指定用户token以及视频id对应点赞的操作失败！")
 		return err
 	}
 
+	// 更新数据库
 	err = db.Debug().Model(&Video{}).Where("id = ?", videoId).Update("favorite_count", gorm.Expr("favorite_count - ?", 1)).Error
 	if err != nil {
+		log.Printf("数据库更新失败！")
 		fmt.Println(err)
 		return err
 	}
