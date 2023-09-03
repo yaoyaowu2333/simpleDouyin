@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// 视频列表相应结构体
 type VideoListResponse struct {
 	entity.Response
 	VideoList []entity.Video `json:"video_list"`
