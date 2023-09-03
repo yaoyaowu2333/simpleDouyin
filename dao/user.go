@@ -139,6 +139,7 @@ func (*UserDao) QueryUserByToken(token string) (*User, error) {
 	return users, nil
 }
 
+
 func (*UserDao) Save(user *User) error {
 	result := db.Create(&user)
 	err := result.Error
@@ -177,6 +178,7 @@ func (*UserDao) IncreaseVideoCountByOne(id int64) error {
 	var user *User
 	err := db.Where("id = ?", id).First(&user).Error
 	if err != nil {
+		log.Printf("数据库查询指定id的用户，查询失败！")
 		return err
 	}
 	user.VideoCount = user.VideoCount + 1
