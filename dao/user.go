@@ -16,7 +16,7 @@ type User struct {
 	FollowCount   int64
 	FollowerCount int64
 	VideoCount    int64
-	LikeCount     int64
+	FavoriteCount     int64
 	TotalFavorited int64
 }
 

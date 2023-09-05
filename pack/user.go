@@ -15,7 +15,7 @@ func User(userModel *dao.User) *entity.User {
 			FollowCount:   userModel.FollowCount,
 			FollowerCount: userModel.FollowerCount,
 			WorkCount:     userModel.VideoCount,
-			FavoriteCount: userModel.LikeCount,
+			FavoriteCount: userModel.FavoriteCount,
 			TotalFavorited: userModel.TotalFavorited,
 		}
 	}

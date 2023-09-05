@@ -113,6 +113,15 @@ func (d *FavoriteDao) Save(favorite *Favorite) error {
 		fmt.Println(err)
 	    return err
 	}
+
+	// 更新用户的FavoriteCount字段
+	err = db.Debug().Model(&User{}).Where("Id = ?", userID).Update("favorite_count", gorm.Expr("COALESCE(favorite_count, 0) + 1")).Error
+	if err != nil {
+		// 处理错误
+		log.Printf("数据库更新待取消点赞视频作者的喜欢数据操作失败！")
+		fmt.Println(err)
+		return err
+	}
 	
 	return nil
 }
@@ -159,6 +168,15 @@ func (d *FavoriteDao) Delete(videoId int64, token string) error {
 	if err != nil {
 	    // 处理错误
 		log.Printf("数据库更新待取消点赞视频作者的获赞数操作失败！")
+		fmt.Println(err)
+	    return err
+	}
+
+	// 更新用户的FavoriteCount字段
+	err = db.Debug().Model(&User{}).Where("Id = ?", userID).Update("favorite_count", gorm.Expr("COALESCE(favorite_count, 0) - 1")).Error
+	if err != nil {
+	    // 处理错误
+		log.Printf("数据库更新待取消点赞视频作者的喜欢数据操作失败！")
 		fmt.Println(err)
 	    return err
 	}
