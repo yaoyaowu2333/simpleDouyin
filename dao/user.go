@@ -17,6 +17,7 @@ type User struct {
 	FollowerCount int64
 	VideoCount    int64
 	LikeCount     int64
+	TotalFavorited int64
 }
 
 type UserDao struct {

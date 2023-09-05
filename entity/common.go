@@ -31,6 +31,7 @@ type User struct {
 	IsFollow      bool   `json:"is_follow,omitempty"`
 	WorkCount     int64  `json:"work_count,omitempty"`
 	FavoriteCount int64  `json:"favorite_count,omitempty"`
+	TotalFavorited int64  `json:"total_favorited,omitempty"`
 }
 
 type Message struct {
