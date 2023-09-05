@@ -28,6 +28,7 @@ func Video(videoModel *dao.Video) *entity.Video {
 			FavoriteCount: videoModel.FavoriteCount,
 			CommentCount:  videoModel.FavoriteCount,
 			Title:         videoModel.Title,
+			IsFavorite:    videoModel.IsFavorite,
 		}
 	}
 	return nil

@@ -16,6 +16,7 @@ type Video struct {
 	CreateAt      time.Time
 	FavoriteCount int64
 	CommentCount  int64
+	IsFavorite    bool
 }
 
 type VideoDao struct {

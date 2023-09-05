@@ -83,6 +83,16 @@ func (d *FavoriteDao) Save(favorite *Favorite) error {
 		return err
 	}
 
+	// 在这里，当视频id等于点赞视频的id时，该视频的is_favorite更改为true
+	// err = db.Debug().Model(&Video{}).Where("id = ?", favorite.VideoId).Update("is_favorite", "true").Error
+	err = db.Debug().Model(&Video{}).Where("id = ?", favorite.VideoId).Update("is_favorite", 1).Error
+	if err != nil {
+		log.Printf("数据库更新点赞信息的is_favorite值操作失败！")
+		fmt.Println(err)
+		return err
+	}
+
+
 	// 当视频id等于点赞视频的id时，该视频的作者的获赞数应该加一
 	var video Video
 	err = db.Debug().Model(&Video{}).Where("id = ?", favorite.VideoId).First(&video).Error
@@ -123,6 +133,15 @@ func (d *FavoriteDao) Delete(videoId int64, token string) error {
 		fmt.Println(err)
 		return err
 	}
+
+	// 在这里，当视频id等于点赞视频的id时，该视频的is_favorite更改为false
+	err = db.Debug().Model(&Video{}).Where("id = ?", videoId).Update("is_favorite", 0).Error
+	if err != nil {
+		log.Printf("数据库更新点赞信息的is_favorite值操作失败！")
+		fmt.Println(err)
+		return err
+	}
+
 	// 当视频id等于点赞视频的id时，该视频的作者的获赞数应该减一
 	var video Video
 	err = db.Debug().Model(&Video{}).Where("id = ?", videoId).First(&video).Error
