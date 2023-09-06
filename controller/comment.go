@@ -44,6 +44,10 @@ func CommentActionFunc(videoId, token, actionType, commentId, text string) Comme
 	}
 	if actionType == "1" {
 		log.Printf("评论操作类型为1，下面开始执行评论的操作")
+		if text == "" {
+			log.Printf("评论内容为空，请检查评论内容！")
+			return FailCommentResponse("Comments are not allowed to be empty! ")
+		}
 		comment, err := commentService.Add(vid, token, text)
 		if err != nil {
 			log.Printf("commentService.Add(vid, token, text)方法执行有误，评论添加失败！")
