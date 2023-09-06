@@ -149,6 +149,15 @@ func (s *CommentService) Withdraw(id int64, token string, videoId int64) (*entit
 		log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
 		return nil, utils.Error{Msg: "User doesn't exist, Please Register! "}
 	}
+	comments, err := dao.NewCommentDaoInstance().QueryCommentById(id)
+	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().QueryCommentById(id)方法执行有误，评论查询失败！")
+		return nil, err
+	}
+	if user.Name != comments.UserName {
+		return nil, utils.Error{Msg: "不能删除其他人的评论 "}
+	}
+
 	oldComment, err := dao.NewCommentDaoInstance().DeleteById(id)
 	if err != nil {
 		log.Printf("dao.NewCommentDaoInstance().DeleteById(id)方法执行有误，评论删除失败！")

@@ -41,8 +41,8 @@ func (d *CommentDao) QueryAllComment() ([]*Comment, error) {
 	return comments, nil
 }
 
-func (d *CommentDao) QueryCommentById(id int64) ([]*Comment, error) {
-	var comments []*Comment
+func (d *CommentDao) QueryCommentById(id int64) (*Comment, error) {
+	var comments *Comment
 	err := db.Where("id = ?", id).Find(&comments).Error
 	if err != nil {
 		log.Fatal("batch find video by author_id err:" + err.Error())
