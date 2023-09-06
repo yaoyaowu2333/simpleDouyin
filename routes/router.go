@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,7 +7,7 @@ import (
 	"simpleDouyin/controller"
 )
 
-func initRouter(r *gin.Engine) {
+func InitRouter(r *gin.Engine) {
 	// public directory is used to serve static resources
 	r.Static("/douyin/static", "./public")
 	r.LoadHTMLGlob("templates/*")

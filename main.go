@@ -4,6 +4,7 @@ import (
 	//"github.com/RaymondCode/simple-demo/service"
 	"github.com/gin-gonic/gin"
 	"simpleDouyin/dao"
+	"simpleDouyin/routes"
 	"simpleDouyin/service"
 )
 
@@ -12,7 +13,7 @@ func main() {
 
 	r := gin.Default()
 
-	initRouter(r)
+	routes.InitRouter(r)
 	err := initDB()
 	if err != nil {
 		println(err.Error())
