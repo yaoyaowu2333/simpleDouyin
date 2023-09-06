@@ -79,13 +79,17 @@ func (s *FavoriteService) LastId() (int64, error) {
 func (s *FavoriteService) Add(videoId int64, token string) error {
 	// 先查缓存 ..
 	var user *dao.User
+	if token == "" {
+		log.Printf("token为空")
+		return utils.Error{Msg: "User doesn't login"}
+	}
 	if _, exist := usersLoginInfo[token]; !exist {
-		user, _ = dao.NewUserDaoInstance().QueryUserByToken(token)
-		if user == nil {
-			log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
-			return utils.Error{Msg: "User doesn't exist, Please Register! "}
-		}
-		usersLoginInfo[token] = *pack.User(user)
+		return utils.Error{Msg: "User doesn't login"}
+	}
+	user, _ = dao.NewUserDaoInstance().QueryUserByToken(token)
+	if user == nil {
+		log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
+		return utils.Error{Msg: "User doesn't exist, Please Register! "}
 	}
 	// 点赞
 	// 获取当前点赞的最后一个ID
@@ -136,13 +140,17 @@ func (s *FavoriteService) Add(videoId int64, token string) error {
 func (s *FavoriteService) Withdraw(videoId int64, token string) error {
 	//查看用户是否登录
 	var user *dao.User
+	if token == "" {
+		log.Printf("token为空")
+		return utils.Error{Msg: "User doesn't login"}
+	}
 	if _, exist := usersLoginInfo[token]; !exist {
-		user, _ = dao.NewUserDaoInstance().QueryUserByToken(token)
-		if user == nil {
-			log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
-			return utils.Error{Msg: "User doesn't exist, Please Register! "}
-		}
-		usersLoginInfo[token] = *pack.User(user)
+		return utils.Error{Msg: "User doesn't login"}
+	}
+	user, _ = dao.NewUserDaoInstance().QueryUserByToken(token)
+	if user == nil {
+		log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
+		return utils.Error{Msg: "User doesn't exist, Please Register! "}
 	}
 	// 删除点赞
 	err := dao.NewFavoriteDaoInstance().Delete(videoId, token)
