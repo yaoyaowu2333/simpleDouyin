@@ -10,14 +10,14 @@ import (
 )
 
 type User struct {
-	Id            int64
-	Name          string `gorm:"unique;not null"`
-	Password      string
-	FollowCount   int64
-	FollowerCount int64
-	VideoCount    int64
-	FavoriteCount     int64
+	Id             int64
+	Name           string `gorm:"unique;not null"`
+	Password       string
+	FollowCount    int64
+	FollowerCount  int64
 	TotalFavorited int64
+	WorkCount      int64
+	FavoriteCount  int64
 }
 
 type UserDao struct {
@@ -59,7 +59,6 @@ func (*UserDao) QueryUserById(id int64) (*User, error) {
 	return user, nil
 }
 
-
 // 作用：根据一组给定的用户ID查询用户信息
 // 输入：用户ID切片，返回的是用户信息哈希表
 // MQueryUserById will return empty array if no user is found
@@ -80,7 +79,6 @@ func (*UserDao) MQueryUserById(ids []int64) (map[int64]User, error) {
 	}
 	return userMap, nil
 }
-
 
 func (d *UserDao) MQueryUserByName(names []string) (map[string]User, error) {
 	var users []*User
@@ -143,7 +141,6 @@ func (*UserDao) QueryUserByToken(token string) (*User, error) {
 	return users, nil
 }
 
-
 func (*UserDao) Save(user *User) error {
 	result := db.Create(&user)
 	err := result.Error
@@ -185,6 +182,6 @@ func (*UserDao) IncreaseVideoCountByOne(id int64) error {
 		log.Printf("数据库查询指定id的用户，查询失败！")
 		return err
 	}
-	user.VideoCount = user.VideoCount + 1
+	user.WorkCount = user.WorkCount + 1
 	return db.Save(&user).Error
 }

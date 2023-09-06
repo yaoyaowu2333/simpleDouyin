@@ -3,6 +3,7 @@ package pack
 import (
 	"simpleDouyin/dao"
 	"simpleDouyin/entity"
+	"strconv"
 )
 
 // User if param is nil then return nil
@@ -10,13 +11,13 @@ import (
 func User(userModel *dao.User) *entity.User {
 	if userModel != nil {
 		return &entity.User{
-			Id:            userModel.Id,
-			Name:          userModel.Name,
-			FollowCount:   userModel.FollowCount,
-			FollowerCount: userModel.FollowerCount,
-			WorkCount:     userModel.VideoCount,
-			FavoriteCount: userModel.FavoriteCount,
-			TotalFavorited: userModel.TotalFavorited,
+			Id:             userModel.Id,
+			Name:           userModel.Name,
+			FollowCount:    userModel.FollowCount,
+			FollowerCount:  userModel.FollowerCount,
+			TotalFavorited: strconv.FormatInt(userModel.TotalFavorited, 10),
+			WorkCount:      userModel.WorkCount,
+			FavoriteCount:  userModel.FavoriteCount,
 		}
 	}
 	return nil
