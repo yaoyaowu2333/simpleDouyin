@@ -36,6 +36,7 @@ func NewVideoDaoInstance() *VideoDao {
 }
 
 // QueryVideoById will return nil if no user is found
+// 根据视频id查询视频
 func (*VideoDao) QueryVideoById(id int64) (*Video, error) {
 	var video Video
 	err := db.Where("id = ?", id).First(&video).Error
@@ -68,6 +69,7 @@ func (*VideoDao) CreateVideo(video *Video) error {
 	return db.Create(&video).Error
 }
 
+// QueryVideoByAuthorId
 // 返回数据库中获取的给定作者ID相关的视频列表
 // 输入：*VideoDao类型
 // 输出：视频列表
@@ -83,10 +85,29 @@ func (*VideoDao) QueryVideoByAuthorId(authorId int64) ([]*Video, error) {
 	return videos, nil
 }
 
+// UpdateCommentByID
+// 更新评论数
 func (*VideoDao) UpdateCommentByID(id int64, count int64) error {
 	err := db.Model(&Video{}).Where("id = ?", id).UpdateColumn("comment_count", count).Error
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// UpdateFavoriteByID
+// 更新点赞数
+func (*VideoDao) UpdateFavoriteByID(id int64, actionType int64) error {
+	var video Video
+	err := db.Where("id = ?", id).First(&video).Error
+	if err == gorm.ErrRecordNotFound {
+		log.Printf("数据库查询指定id的用户，查询失败！")
+		return err
+	}
+	if actionType == 1 {
+		video.FavoriteCount += 1
+	} else {
+		video.FavoriteCount -= 1
+	}
+	return db.Save(&video).Error
 }

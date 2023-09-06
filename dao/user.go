@@ -59,6 +59,7 @@ func (*UserDao) QueryUserById(id int64) (*User, error) {
 	return user, nil
 }
 
+// MQueryUserById
 // 作用：根据一组给定的用户ID查询用户信息
 // 输入：用户ID切片，返回的是用户信息哈希表
 // MQueryUserById will return empty array if no user is found
@@ -109,11 +110,10 @@ func (*UserDao) QueryUserByName(name string) (*User, error) {
 	return user, nil
 }
 
+// QueryUserByToken
 // 根据用户令牌（token）查询用户信息
 // 输入：token
 // 输出：返回值是一个 *User 指针，表示查询到的用户对象，以及一个 error，表示可能的错误
-
-// QueryUserByToken
 // 从token中获取用户名与密码
 // 效验用户名与密码
 func (*UserDao) QueryUserByToken(token string) (*User, error) {
@@ -183,5 +183,40 @@ func (*UserDao) IncreaseVideoCountByOne(id int64) error {
 		return err
 	}
 	user.WorkCount = user.WorkCount + 1
+	return db.Save(&user).Error
+}
+
+// IncreaseFavoriteCountByOne
+// 使得点赞数数加一
+func (*UserDao) IncreaseFavoriteCountByOne(id int64, actionType int64) error {
+	var user *User
+	err := db.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		log.Printf("数据库查询指定id的用户，查询失败！")
+		return err
+	}
+	if actionType == 1 {
+		user.FavoriteCount = user.FavoriteCount + 1
+	} else {
+		user.FavoriteCount = user.FavoriteCount - 1
+	}
+
+	return db.Save(&user).Error
+}
+
+// IncreaseTotalFavoriteCountByOne
+// 使得点赞数数加一
+func (*UserDao) IncreaseTotalFavoriteCountByOne(id int64, actionType int64) error {
+	var user *User
+	err := db.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		log.Printf("数据库查询指定id的用户，查询失败！")
+		return err
+	}
+	if actionType == 1 {
+		user.TotalFavorited = user.TotalFavorited + 1
+	} else {
+		user.TotalFavorited = user.TotalFavorited - 1
+	}
 	return db.Save(&user).Error
 }
