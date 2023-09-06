@@ -3,6 +3,7 @@ package service
 // TODO
 import (
 	"fmt"
+	"log"
 	"simpleDouyin/dao"
 	"simpleDouyin/entity"
 	"simpleDouyin/pack"
@@ -26,6 +27,7 @@ func NewCommentServiceInstance() *CommentService {
 	return commentService
 }
 
+// 加载视频所有评论
 func (s *CommentService) LoadComments(videoId int64) ([]*entity.Comment, error) {
 	return s.FindCommentByVideoId(videoId)
 }
@@ -34,6 +36,7 @@ func (s *CommentService) FindCommentByName(name string) (*entity.Comment, error)
 	// 查询用户信息
 	commentModel, err := dao.NewCommentDaoInstance().QueryCommentByName(name)
 	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().QueryCommentByName(name)方法执行有误！")
 		return nil, err
 	}
 
@@ -41,9 +44,11 @@ func (s *CommentService) FindCommentByName(name string) (*entity.Comment, error)
 	return pack.Comment(commentModel), nil
 }
 
+// 获取视频所有评论
 func (s *CommentService) FindCommentByVideoId(videoID int64) ([]*entity.Comment, error) {
 	// invalid authorId
 	if videoID <= 0 {
+		log.Printf("视频id有问题！")
 		return nil, nil
 	}
 
@@ -53,6 +58,7 @@ func (s *CommentService) FindCommentByVideoId(videoID int64) ([]*entity.Comment,
 
 	userModelMap, err := dao.NewUserDaoInstance().MQueryUserByName(userNames)
 	if err != nil {
+		log.Printf("dao.NewUserDaoInstance().MQueryUserByName(userNames)方法执行有误！")
 		return nil, err
 	}
 	userMap := pack.MUserByName(userModelMap)
@@ -68,6 +74,7 @@ func (s *CommentService) FindCommentByVideoId(videoID int64) ([]*entity.Comment,
 func (s *CommentService) TotalComment() (int64, error) {
 	count, err := dao.NewCommentDaoInstance().Total()
 	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().Total()方法执行有误！")
 		return -1, err
 	}
 	return count, nil
@@ -76,21 +83,30 @@ func (s *CommentService) TotalComment() (int64, error) {
 func (s *CommentService) LastId() (int64, error) {
 	count, err := dao.NewCommentDaoInstance().MaxId()
 	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().MaxId()方法执行有误！")
 		return count, err
 	}
 	return count, nil
 }
 
+// 添加评论的操作
 func (s *CommentService) Add(videoId int64, token, text string) (*entity.Comment, error) {
-	// 先查缓存 ..
+	// 先查缓存,查看用户是否登录 ..
+	var user *dao.User
+	if token == "" {
+		log.Printf("token为空")
+		return nil, utils.Error{Msg: "User doesn't login"}
+	}
 	if _, exist := usersLoginInfo[token]; !exist {
-		user, _ := dao.NewUserDaoInstance().QueryUserByToken(token)
-		if user == nil {
-			return nil, utils.Error{Msg: "User doesn't exist, Please Register! "}
-		}
-		usersLoginInfo[token] = *pack.User(user)
+		return nil, utils.Error{Msg: "User doesn't login"}
+	}
+	user, _ = dao.NewUserDaoInstance().QueryUserByToken(token)
+	if user == nil {
+		log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
+		return nil, utils.Error{Msg: "User doesn't exist, Please Register! "}
 	}
 	// 评论
+	log.Printf("下面获取当前最大的评论id，自加一，并生成新的评论，添加进数据库中...")
 	commentIdSequence, _ := commentService.LastId()
 	atomic.AddInt64(&commentIdSequence, 1)
 	newComment := &dao.Comment{
@@ -103,15 +119,54 @@ func (s *CommentService) Add(videoId int64, token, text string) (*entity.Comment
 	fmt.Println(newComment)
 	comment, err := dao.NewCommentDaoInstance().Save(newComment)
 	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().Save(newComment)方法执行有误，添加评论操作失败！")
+		return nil, err
+	}
+	// 修改该视频的评论数
+	err = dao.NewVideoDaoInstance().UpdateCommentByID(videoId, 1)
+	if err != nil {
+		log.Printf("dao.NewVideoDaoInstance().UpdateFavoriteByID(videoId)方法失败，修改视频点赞数操作失误！")
 		return nil, err
 	}
 	return pack.Comment(comment), nil
 }
 
-func (s *CommentService) Withdraw(videoId int64) (*entity.Comment, error) {
-	// 删除评论
-	oldComment, err := dao.NewCommentDaoInstance().DeleteById(videoId)
+// 删除评论的操作
+func (s *CommentService) Withdraw(id int64, token string, videoId int64) (*entity.Comment, error) {
+	//
+	log.Printf("开始删除评论！")
+	// 先查缓存,查看用户是否登录 ..
+	var user *dao.User
+	if token == "" {
+		log.Printf("token为空")
+		return nil, utils.Error{Msg: "User doesn't login"}
+	}
+	if _, exist := usersLoginInfo[token]; !exist {
+		return nil, utils.Error{Msg: "User doesn't login"}
+	}
+	user, _ = dao.NewUserDaoInstance().QueryUserByToken(token)
+	if user == nil {
+		log.Printf("dao.NewUserDaoInstance().QueryUserByToken(token)方法失败，用户为空！")
+		return nil, utils.Error{Msg: "User doesn't exist, Please Register! "}
+	}
+	comments, err := dao.NewCommentDaoInstance().QueryCommentById(id)
 	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().QueryCommentById(id)方法执行有误，评论查询失败！")
+		return nil, err
+	}
+	if user.Name != comments.UserName {
+		return nil, utils.Error{Msg: "不能删除其他人的评论 "}
+	}
+
+	oldComment, err := dao.NewCommentDaoInstance().DeleteById(id)
+	if err != nil {
+		log.Printf("dao.NewCommentDaoInstance().DeleteById(id)方法执行有误，评论删除失败！")
+		return nil, err
+	}
+	// 修改该视频的评论数
+	err = dao.NewVideoDaoInstance().UpdateCommentByID(videoId, 2)
+	if err != nil {
+		log.Printf("dao.NewVideoDaoInstance().UpdateFavoriteByID(videoId)方法失败，修改视频点赞数操作失误！")
 		return nil, err
 	}
 	return pack.Comment(oldComment), nil

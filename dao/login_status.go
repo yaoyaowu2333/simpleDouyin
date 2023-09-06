@@ -46,10 +46,14 @@ func (*LoginStatusDao) QueryTokenByUserId(userId int64) (*LoginStatus, error) {
 	return loginStatus, nil
 }
 
+// CreateLoginStatus
+// 向登录日志表插入登录数据
 func (*LoginStatusDao) CreateLoginStatus(loginStatus *LoginStatus) error {
 	return db.Create(&loginStatus).Error
 }
 
+// QueryUserIdByToken
+// 根据token获取登录用户的id
 func (*LoginStatusDao) QueryUserIdByToken(token string) (int64, error) {
 	var loginStatus *LoginStatus
 	err := db.Where("token = ?", token).First(&loginStatus).Error

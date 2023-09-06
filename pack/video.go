@@ -5,6 +5,8 @@ import (
 	"simpleDouyin/entity"
 )
 
+// AuthorIds
+// 依据视频内容获取返回视频的作者id
 func AuthorIds(videoModels []*dao.Video) []int64 {
 	if videoModels != nil {
 		var ids = make([]int64, 0, len(videoModels))
@@ -25,11 +27,15 @@ func Video(videoModel *dao.Video) *entity.Video {
 			CoverUrl:      videoModel.CoverUrl,
 			FavoriteCount: videoModel.FavoriteCount,
 			CommentCount:  videoModel.FavoriteCount,
+			Title:         videoModel.Title,
+			IsFavorite:    videoModel.IsFavorite,
 		}
 	}
 	return nil
 }
 
+// Videos
+// 将videoModels数据通过Videos进行处理，在拷贝的过程中对数据进行组装
 func Videos(videoModels []*dao.Video) []*entity.Video {
 	if videoModels != nil {
 		var videos = make([]*entity.Video, 0, len(videoModels))

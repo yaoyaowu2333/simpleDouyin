@@ -7,6 +7,8 @@ import (
 )
 
 var db *gorm.DB
+
+// var dsn = "root:3300@tcp(127.0.0.1:3306)/douyins?charset=utf8mb4&parseTime=True&loc=Local"
 var dsn = "root:3300@tcp(127.0.0.1:3306)/douyins?charset=utf8mb4&parseTime=True&loc=Local"
 
 func Init(migrate bool) error {

@@ -41,8 +41,8 @@ func (d *CommentDao) QueryAllComment() ([]*Comment, error) {
 	return comments, nil
 }
 
-func (d *CommentDao) QueryCommentById(id int64) ([]*Comment, error) {
-	var comments []*Comment
+func (d *CommentDao) QueryCommentById(id int64) (*Comment, error) {
+	var comments *Comment
 	err := db.Where("id = ?", id).Find(&comments).Error
 	if err != nil {
 		log.Fatal("batch find video by author_id err:" + err.Error())
@@ -54,9 +54,11 @@ func (d *CommentDao) QueryCommentById(id int64) ([]*Comment, error) {
 // QueryCommentByVideoId 添加返回结果int64
 func (d *CommentDao) QueryCommentByVideoId(videoID int64) (int64, []*Comment, error) {
 	var comments []*Comment
+	log.Printf("数据库查询，根据视频id查询所有评论")
 	result := db.Where("video_id = ?", videoID).Order("id DESC").Find(&comments)
 	err := result.Error
 	if err != nil {
+		log.Printf("数据库查询失败！")
 		return 0, nil, err
 	}
 	return result.RowsAffected, comments, nil
@@ -66,20 +68,27 @@ func (d *CommentDao) QueryCommentByName(name string) (*Comment, error) {
 	return nil, nil
 }
 
+// 数据库中添加新增的评论
 func (d *CommentDao) Save(comment *Comment) (*Comment, error) {
-	result := db.Create(&comment)
-	err := result.Error
-	if err != nil {
-		return nil, err
-	}
-	return comment, nil
+	log.Printf("数据库中新添一个评论\n")
+	return comment, db.Create(&comment).Error
+	//result := db.Create(&comment)
+	//err := result.Error
+	//if err != nil {
+	//	log.Printf("数据库添加评论操作失败！")
+	//	return nil, err
+	//}
+	//return comment, nil
 }
 
+// 数据库中删除一个指定id的评论
 func (d *CommentDao) DeleteById(id int64) (*Comment, error) {
 	var comment *Comment
+	log.Printf("在数据库中删除指定id的评论")
 	result := db.Where("id = ?", id).Delete(&comment)
 	err := result.Error
 	if err != nil {
+		log.Printf("数据库删除id为%v的评论，操作失败", id)
 		return nil, err
 	}
 	return comment, nil
