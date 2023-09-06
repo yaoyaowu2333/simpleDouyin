@@ -30,7 +30,7 @@ func UserInfoFunc(userId, token string) UserResponse {
 		return ErrorUserResponse(err)
 	}
 	log.Printf("查询用户的id: %v\n", uid)
-	user, err := service.NewUserServiceInstance().UserInfo(uid)
+	user, err := service.NewUserServiceInstance().UserInfo(uid, token)
 	if err != nil {
 		log.Printf("方法userService.UserInfo(uid)失败: %v\n", err)
 		return ErrorUserResponse(err)

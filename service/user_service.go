@@ -29,7 +29,12 @@ func NewUserServiceInstance() *UserService {
 
 // UserInfo
 // 查询用户信息,重组用户信息并返回
-func (s *UserService) UserInfo(uid int64) (*entity.User, error) {
+func (s *UserService) UserInfo(uid int64, token string) (*entity.User, error) {
+	// 先查缓存 ..
+	//只有登录后的用户才能查看该用户的信息
+	if _, exist := usersLoginInfo[token]; !exist {
+		return nil, utils.Error{Msg: "token error, Please login! "}
+	}
 	// 查询用户信息
 	userModel, err := dao.NewUserDaoInstance().QueryUserById(uid)
 	if err != nil {

@@ -15,8 +15,9 @@ import (
 
 // 是否自动生成封面，需要配置环境，默认为否
 // var useGeneratedCover = utils.UseGeneratedCover
-// var useGeneratedCover = true
-var useGeneratedCover = false
+var useGeneratedCover = true
+
+//var useGeneratedCover = false
 
 // Publish POST /publish/action/
 func Publish(c *gin.Context) {
@@ -34,6 +35,14 @@ func Publish(c *gin.Context) {
 }
 
 func PublishFunc(token, title string, data *multipart.FileHeader, c *gin.Context) entity.Response {
+	//检查token是否为空
+	if token == "" {
+		return ErrorResponse(utils.Error{Msg: "token不能为空"})
+	}
+	//检查title是否为空
+	if token == "" {
+		return ErrorResponse(utils.Error{Msg: "title不能为空"})
+	}
 	//检查文件是否为空
 	if data == nil {
 		return ErrorResponse(utils.Error{Msg: "empty data file"})
