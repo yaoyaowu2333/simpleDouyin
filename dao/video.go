@@ -87,12 +87,24 @@ func (*VideoDao) QueryVideoByAuthorId(authorId int64) ([]*Video, error) {
 
 // UpdateCommentByID
 // 更新评论数
-func (*VideoDao) UpdateCommentByID(id int64, count int64) error {
-	err := db.Model(&Video{}).Where("id = ?", id).UpdateColumn("comment_count", count).Error
-	if err != nil {
+func (*VideoDao) UpdateCommentByID(id int64, actionType int64) error {
+	//err := db.Model(&Video{}).Where("id = ?", id).UpdateColumn("comment_count", count).Error
+	//if err != nil {
+	//	return err
+	//}
+	//return nil
+	var video Video
+	err := db.Where("id = ?", id).First(&video).Error
+	if err == gorm.ErrRecordNotFound {
+		log.Printf("数据库查询指定id的用户，查询失败！")
 		return err
 	}
-	return nil
+	if actionType == 1 {
+		video.CommentCount += 1
+	} else {
+		video.CommentCount -= 1
+	}
+	return db.Save(&video).Error
 }
 
 // UpdateFavoriteByID

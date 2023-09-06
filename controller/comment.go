@@ -2,15 +2,14 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"simpleDouyin/entity"
 	"simpleDouyin/service"
 	"strconv"
-	"log"
 )
 
 var commentService = service.NewCommentServiceInstance()
-
 
 // 视频评论响应结构体
 type CommentActionResponse struct {
@@ -20,7 +19,7 @@ type CommentActionResponse struct {
 
 // CommentAction no practical effect, just check if token is valid
 // 视频评论接口
-// 接受两个查询参数：视频id、token、评论操作类型、评论id、评论内容    
+// 接受两个查询参数：视频id、token、评论操作类型、评论id、评论内容
 // 返回包含 CommentActionFunc 函数结果的JSON作为响应
 func CommentAction(c *gin.Context) {
 	c.JSON(http.StatusOK, CommentActionFunc(
@@ -32,11 +31,11 @@ func CommentAction(c *gin.Context) {
 	))
 }
 
-
+// CommentActionFunc
 // 输入：videoId, token, actionType, commentId, text
 // CommentActionResponse类型
 func CommentActionFunc(videoId, token, actionType, commentId, text string) CommentActionResponse {
-	// 
+	//
 	log.Printf("将视频id转换为整型")
 	vid, err := strconv.ParseInt(videoId, 10, 64)
 	if err != nil {
@@ -68,7 +67,7 @@ func CommentActionFunc(videoId, token, actionType, commentId, text string) Comme
 			log.Printf("评论id转换为整型操作失败！")
 			return ErrorCommentResponse(err)
 		}
-		comment, err := commentService.Withdraw(cid)
+		comment, err := commentService.Withdraw(cid, token, vid)
 		if err != nil {
 			log.Printf("strconv.ParseInt(commentId, 10, 64)方法执行有误，评论取消失败！")
 			return ErrorCommentResponse(err)

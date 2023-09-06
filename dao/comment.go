@@ -68,19 +68,18 @@ func (d *CommentDao) QueryCommentByName(name string) (*Comment, error) {
 	return nil, nil
 }
 
-
 // 数据库中添加新增的评论
 func (d *CommentDao) Save(comment *Comment) (*Comment, error) {
-	log.Printf("数据库中新添一个评论")
-	result := db.Create(&comment)
-	err := result.Error
-	if err != nil {
-		log.Printf("数据库添加评论操作失败！")
-		return nil, err
-	}
-	return comment, nil
+	log.Printf("数据库中新添一个评论\n")
+	return comment, db.Create(&comment).Error
+	//result := db.Create(&comment)
+	//err := result.Error
+	//if err != nil {
+	//	log.Printf("数据库添加评论操作失败！")
+	//	return nil, err
+	//}
+	//return comment, nil
 }
-
 
 // 数据库中删除一个指定id的评论
 func (d *CommentDao) DeleteById(id int64) (*Comment, error) {
